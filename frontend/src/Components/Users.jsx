@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
+import { AudioRecorder } from 'react-audio-voice-recorder';
 import chatImg from '../assets/chat.jpg';
 import { MdAddCall } from "react-icons/md";
 import { CiVideoOn } from "react-icons/ci";
@@ -6,7 +7,6 @@ import axios from 'axios';
 import { format, isToday, isYesterday } from 'date-fns';
 import Chat from './Chat';
 import UserList from './UserList';
-import { useAudioRecorder } from 'use-audio-recorder';
 
 const Users = () => {
   const [data, setData] = useState([]);
@@ -26,26 +26,6 @@ const Users = () => {
       chatAreaRef.current.scrollTop = chatAreaRef.current.scrollHeight;
     }
   };
-
-  // Voice Recorder Hook
- const {
-  startRecording,
-  stopRecording,
-  recordingBlob,
-  isRecording,
-} = useAudioRecorder({
-  encoderBitRate: 128000,
-  mimeType: 'audio/webm',
-  onStart: () => console.log("Recording started"),
-  onStop: (blob) => {
-    console.log("Recording stopped:", blob);
-  },
-  onError: (err) => {
-    console.error("🎙 Microphone error:", err);
-    alert("Mic access denied or device not supported.");
-  },
-});
-
 
   useEffect(() => {
     const fetchData = async () => {
@@ -107,12 +87,11 @@ const Users = () => {
     }
   };
 
-  const handleVoiceSend = async () => {
-    console.log(recordingBlob)
-    if (!recordingBlob || !user._id) return;
+  const handleVoiceBlob = async (blob) => {
+    if (!blob || !user._id) return;
 
-    const file = new File([recordingBlob], 'voice-message.webm', {
-      type: recordingBlob.type,
+    const file = new File([blob], 'voice-message.webm', {
+      type: blob.type,
     });
 
     const formData = new FormData();
@@ -166,28 +145,32 @@ const Users = () => {
 
           <Chat {...{ messageData, chatAreaRef, formatMessageTime, storageData }} />
 
-          <div className="mt-3 d-flex align-items-center">
-            <input
-              onChange={(e) => setFormdata((prev) => ({ ...prev, text: e.target.value }))}
-              value={formdata.text}
-              type="text"
-              className="form-control me-2"
-              placeholder="Type a message"
-            />
+          <div className="mt-3 d-flex flex-column gap-2">
+            <div className="d-flex align-items-center">
+              <input
+                onChange={(e) => setFormdata((prev) => ({ ...prev, text: e.target.value }))}
+                value={formdata.text}
+                type="text"
+                className="form-control me-2"
+                placeholder="Type a message"
+              />
+               <div className="me-1">
+              <AudioRecorder
+                onRecordingComplete={handleVoiceBlob}
+                audioTrackConstraints={{
+                  noiseSuppression: true,
+                  echoCancellation: true,
+                }}
+                downloadOnSavePress={false}
+                showVisualizer={true}
+              />
+            </div>
+              <button onClick={handleForm} disabled={!user._id || !formdata.text} className="btn btn-success">
+                Send
+              </button>
+            </div>
 
-            <button onClick={startRecording} disabled={isRecording} className="btn btn-outline-primary me-1">
-              🎙
-            </button>
-            <button onClick={stopRecording} disabled={!isRecording} className="btn btn-outline-danger me-1">
-              🛑
-            </button>
-            <button onClick={handleVoiceSend} disabled={recordingBlob} className="btn btn-primary me-1">
-              📤
-            </button>
-
-            <button onClick={handleForm} disabled={!user._id || !formdata.text} className="btn btn-success">
-              Send
-            </button>
+           
           </div>
         </div>
       </div>
