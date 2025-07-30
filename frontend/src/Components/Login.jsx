@@ -13,7 +13,7 @@ const Login = () => {
 
     });
 
-    const { setAuth } = useContext(AuthProvider)
+    const { setAuth ,setUser} = useContext(AuthProvider)
     const navigate = useNavigate()
 
     const [errors, setErrors] = useState({});
@@ -47,6 +47,7 @@ const Login = () => {
             if (res.data.success) {
                 localStorage.setItem('user', JSON.stringify(res.data.user))
                 toast.success(res.data.message)
+                setUser(res.data.user)
                 setAuth(true)
                 setFormData({
                     email: '',

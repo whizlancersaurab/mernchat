@@ -146,6 +146,7 @@ const Register = () => {
                             className={`form-select ${errors.role && 'is-invalid'}`}
                         >
 
+                            <option value="">Select Role</option>
                             <option value="user">User</option>
                             <option value="admin">Admin</option>
                         </select>
@@ -161,6 +162,7 @@ const Register = () => {
                             className={`form-select ${errors.status && 'is-invalid'}`}
                         >
 
+                            <option value="">Select Status</option>
                             <option value="0">Active</option>
                             <option value="1">De-Active</option>
                         </select>

@@ -8,7 +8,7 @@ router.post('/register' , userController.registerUser)
 router.post('/login' , userController.loginUser)
 router.get('/allusers' , userController.allUser)
 router.get('/user/:id' , userController.getUserById)
-router.get('/logout/' ,verifyToken, userController.logoutUser)
+router.get('/logout' ,verifyToken, userController.logoutUser)
 router.get('/currentuser' , verifyToken , userController.currentUser)
 router.delete('/deleteuser/:id' ,verifyToken, userController.deleteUser)
 

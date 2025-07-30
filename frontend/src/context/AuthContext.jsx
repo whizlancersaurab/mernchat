@@ -11,15 +11,15 @@ const AuthContext = ({children}) => {
     const [user,setUser] =useState('')
    
   useEffect(()=>{
-    if(localStorage.getItem('token')){
+    if(localStorage.getItem('user')){
         setAuth(true)
-        setUser(localStorage.getItem('user'))
+        setUser(JSON.parse(localStorage.getItem('user')))
     }
 
   } , [setAuth])
 
   return (
-    <AuthProvider.Provider value={{auth,setAuth}} >
+    <AuthProvider.Provider value={{auth,setAuth , user,setUser}} >
         {children}
     </AuthProvider.Provider>
   )

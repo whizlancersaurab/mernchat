@@ -7,7 +7,7 @@ const chatController =require('../controller/chatController')
 const router = express.Router()
 
 router.post('/sendmessage' ,verifyToken ,  chatController.sendMessage)
-router.get('/getmessage' ,verifyToken ,  chatController.getMessage)
+router.get('/getmessage/:id' ,verifyToken ,  chatController.getMessage)
 
 
 module.exports = router

@@ -1,19 +1,37 @@
 import React, { useContext } from 'react';
 import chatboat from '../assets/sau.png';
 import { AuthProvider } from '../context/AuthContext';
-import { Link, NavLink } from 'react-router-dom'
+import { Link, NavLink, useNavigate } from 'react-router-dom'
 import axios from 'axios'
+import { toast } from 'react-toastify';
 
 const Navbar = () => {
 
-  const { auth, setAuth } = useContext(AuthProvider)
+  const { auth, setAuth ,user,setUser} = useContext(AuthProvider)
+
+// console.log(auth,user)
+  const navigate = useNavigate()
 
   const handleLogout = async()=>{
       try {
 
-        const res = await axios.get()
+        const res = await axios.get('http://localhost:8080/api/auth/logout' ,{
+          headers:{
+            Authorization:`Bearer ${user.token}`
+          }
+        })
+
+        if(res.data.success){
+          setAuth(false)
+          localStorage.clear()
+          setUser('')
+          navigate('/login')
+          toast.warning(res.data.message)
+        }
+
         
       } catch (error) {
+        toast.error(error?.response?.data?.message)
         
       }
   }
@@ -72,12 +90,12 @@ const Navbar = () => {
 
                       className="btn btn-sm text-bg-success text-capitalize"
                     >
-                      saurabh
+                      {user.firstname}
                     </button>
                   </li>
                   <li className="nav-item">
                     <button
-
+                       onClick={handleLogout}
                       className="btn btn-sm btn-outline-danger my-1 my-lg-0 mx-lg-1"
                     >
                       Logout
