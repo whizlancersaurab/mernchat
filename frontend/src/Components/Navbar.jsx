@@ -39,9 +39,9 @@ const Navbar = () => {
   return (
     <nav className="navbar navbar-expand-lg bg-secondary-subtle">
       <div className="container-fluid">
-        <a className="navbar-brand" href="#">
+        <div className="navbar-brand">
           <img src={chatboat} width={65} style={{ mixBlendMode: 'darken' }} alt="Chat Logo" />
-        </a>
+        </div>
 
         <button
           className="navbar-toggler"
@@ -57,14 +57,16 @@ const Navbar = () => {
 
         <div className="collapse navbar-collapse" id="navbarSupportedContent">
           <ul className="navbar-nav me-auto mb-2 mb-lg-0">
-            <li className="nav-item">
+            {
+              auth&&(<li className="nav-item">
               <NavLink
                 to="/"
                 className={({ isActive }) => `nav-link fw-semibold ${isActive ? "text-danger" : ""}`}
               >
                 ChatBoat
               </NavLink>
-            </li>
+            </li>)
+            }
 
           </ul>
 
