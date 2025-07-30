@@ -37,7 +37,7 @@ const Navbar = () => {
   }
 
   return (
-    <nav className="navbar navbar-expand-lg bg-primary-subtle">
+    <nav className="navbar navbar-expand-lg bg-secondary-subtle">
       <div className="container-fluid">
         <a className="navbar-brand" href="#">
           <img src={chatboat} width={65} style={{ mixBlendMode: 'darken' }} alt="Chat Logo" />
@@ -59,10 +59,10 @@ const Navbar = () => {
           <ul className="navbar-nav me-auto mb-2 mb-lg-0">
             <li className="nav-item">
               <NavLink
-                to="/register"
+                to="/"
                 className={({ isActive }) => `nav-link fw-semibold ${isActive ? "text-danger" : ""}`}
               >
-                Users
+                ChatBoat
               </NavLink>
             </li>
 

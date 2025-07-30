@@ -145,7 +145,7 @@ const Users = () => {
         </div>
 
         {/* Main Chat Area */}
-        <div style={{backgroundColor:'pink'}} className="col-12 col-sm-8 p-3">
+        <div style={{backgroundColor:'#f3f0f0ff'}} className="col-12 col-sm-8 p-3">
           <div
             style={{ height: '55px' }}
             className="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3"
