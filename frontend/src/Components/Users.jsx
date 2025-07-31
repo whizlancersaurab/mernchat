@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { AudioRecorder } from 'react-audio-voice-recorder';
 import chatImg from '../assets/chat.jpg';
 import { MdAddCall } from "react-icons/md";
-import { CiVideoOn } from "react-icons/ci";
+import { CiVideoOn, CiImageOn } from "react-icons/ci";
 import axios from 'axios';
 import { format, isToday, isYesterday } from 'date-fns';
 import Chat from './Chat';
@@ -13,11 +13,10 @@ const Users = () => {
   const [user, setUser] = useState({});
   const [storageData, setStorageData] = useState(null);
   const [messageData, setMessageData] = useState([]);
-  const [formdata, setFormdata] = useState({
-    recieverId: '',
-    text: ''
-  });
+  const [formdata, setFormdata] = useState({ recieverId: '', text: '' });
   const [currentUserId, setCurrentUserId] = useState(null);
+  const [image, setImage] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState(null);
 
   const chatAreaRef = useRef(null);
 
@@ -43,11 +42,10 @@ const Users = () => {
   const getMessage = async (id) => {
     try {
       const chatRes = await axios.get(`http://localhost:8080/api/chat/getmessage/${id}`, {
-        headers: {
-          Authorization: `Bearer ${storageData.token}`,
-        },
+        headers: { Authorization: `Bearer ${storageData.token}` },
       });
       if (chatRes.data.success) {
+        console.log(chatRes.data.allMessage)
         setMessageData(chatRes.data.allMessage);
         setTimeout(scrollToBottom, 1);
       }
@@ -70,16 +68,43 @@ const Users = () => {
     }
   };
 
-  const handleForm = async () => {
+  const handleSendMessage = async (voiceBlob = null) => {
+    if (!user._id) return;
+    // console.log(formdata)
+    const sendData = new FormData();
+    sendData.append('recieverId', formdata.recieverId);
+
+    if (formdata.text.trim())
+      sendData.append('text', formdata.text);
+
+    if (image)
+      sendData.append('image', image);
+
+    if (voiceBlob) {
+      const audioFile = new File([voiceBlob], "voice-messageData.webm", {
+        type: voiceBlob.type
+      });
+      sendData.append('audio', audioFile);
+    }
+
+
+    //    for (let pair of sendData.entries()) {
+    //       console.log(`${pair[0]}: ${pair[1]}`);
+
+    // }
+
     try {
-      const res = await axios.post(`http://localhost:8080/api/chat/sendmessage`, formdata, {
+      const res = await axios.post(`http://localhost:8080/api/chat/sendmessage`, sendData, {
         headers: {
           Authorization: `Bearer ${storageData.token}`,
+          "Content-Type": "multipart/form-data",
         },
       });
 
       if (res.data.success) {
         setFormdata((prev) => ({ ...prev, text: '' }));
+        setImage(null);
+        setPreviewUrl(null)
         getMessage(currentUserId);
       }
     } catch (error) {
@@ -87,42 +112,50 @@ const Users = () => {
     }
   };
 
-  const handleVoiceBlob = async (blob) => {
-    if (!blob || !user._id) return;
-
-    const file = new File([blob], 'voice-message.webm', {
-      type: blob.type,
-    });
-
-    const formData = new FormData();
-    formData.append('audio', file);
-    formData.append('recieverId', user._id);
-
-    try {
-      const res = await axios.post(`http://localhost:8080/api/chat/sendVoice`, formData, {
-        headers: {
-          Authorization: `Bearer ${storageData.token}`,
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-
-      console.log("✅ Voice message sent:", res.data);
-      getMessage(currentUserId);
-    } catch (err) {
-      console.error("❌ Voice message failed:", err);
-    }
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    setImage(file);
+    setPreviewUrl(URL.createObjectURL(file));
+    setTimeout(scrollToBottom, 1);
   };
+
+
+  const handelCancel = () => {
+    setFormdata((prev) => ({ ...prev, text: '' }))
+    setPreviewUrl(null)
+    setImage(null)
+  }
 
   const formatMessageTime = (dateString) => {
     const date = new Date(dateString);
-    if (isToday(date)) {
-      return format(date, 'hh:mm a');
-    } else if (isYesterday(date)) {
-      return `Yesterday, ${format(date, 'hh:mm a')}`;
-    } else {
-      return format(date, 'dd MMM, hh:mm a');
-    }
+    if (isToday(date)) return format(date, 'hh:mm a');
+    if (isYesterday(date)) return `Yesterday, ${format(date, 'hh:mm a')}`;
+    return format(date, 'dd MMM, hh:mm a');
   };
+
+  const handleDelete = async (id) => {
+    // console.log(id)
+    try {
+      if (!id) {
+        return;
+      }
+
+      const res = await axios.delete(`http://localhost:8080/api/chat/deletemessage/${id}`, {
+        headers: {
+          Authorization: `Bearer ${storageData.token}`,
+        },
+      });
+
+      if (res.data.success) {
+        setMessageData((prev) => prev.filter((message) => message._id != id))
+        // getMessage(user._id)
+      }
+
+    } catch (error) {
+      console.error("Error sending message:", error);
+
+    }
+  }
 
   return (
     <div className="container">
@@ -131,7 +164,14 @@ const Users = () => {
         <div style={{ backgroundColor: '#f3f0f0ff' }} className="col-12 col-sm-8 p-3">
           <div className="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3" style={{ height: '55px' }}>
             <div className="d-flex align-items-center">
-              <img src={chatImg} alt="avatar" className="rounded-circle me-2" width={50} height={50} />
+              <img
+                src={user ? `http://localhost:8080/api/chat/uploads/${user.image}` : chatImg}
+                alt="user"
+                className="rounded-circle me-2"
+                width={50}
+                height={50}
+              />
+
               <div>
                 <div className="fw-bold">{user?.firstname || "Select a user"}</div>
                 <div className="text-muted small">{user?._id ? "online" : "offline"}</div>
@@ -143,34 +183,66 @@ const Users = () => {
             </div>
           </div>
 
-          <Chat {...{ messageData, chatAreaRef, formatMessageTime, storageData }} />
+          <Chat {...{ messageData, chatAreaRef, formatMessageTime, storageData, previewUrl, handleDelete }} />
+          <div style={{ height: "40px", width: "40px", borderRadius: "50%", backgroundColor: "#ffffff" }} className="d-flex  align-items-end shadow-sm">
+            <div>
+              <AudioRecorder
+                onRecordingComplete={(blob) => handleSendMessage(blob)}
+                audioTrackConstraints={{ noiseSuppression: true, echoCancellation: true }}
+                downloadOnSavePress={false}
+                showVisualizer={false}
+              />
+            </div>
+          </div>
 
-          <div className="mt-3 d-flex flex-column gap-2">
-            <div className="d-flex align-items-center">
+          <div className="mt-1 d-flex align-items-center p-2" style={{ backgroundColor: "#f0f2f5", borderRadius: "30px", boxShadow: "0 1px 3px rgba(0,0,0,0.1)", gap: "10px" }}>
+            <div className="flex-grow-1 position-relative">
               <input
                 onChange={(e) => setFormdata((prev) => ({ ...prev, text: e.target.value }))}
                 value={formdata.text}
                 type="text"
-                className="form-control me-2"
+                className="form-control border-0 shadow-none px-3 py-2 pe-5"
                 placeholder="Type a message"
+                style={{ borderRadius: "20px", backgroundColor: "#ffffff" }}
               />
-               <div className="me-1">
-              <AudioRecorder
-                onRecordingComplete={handleVoiceBlob}
-                audioTrackConstraints={{
-                  noiseSuppression: true,
-                  echoCancellation: true,
-                }}
-                downloadOnSavePress={false}
-                showVisualizer={true}
-              />
-            </div>
-              <button onClick={handleForm} disabled={!user._id || !formdata.text} className="btn btn-success">
-                Send
-              </button>
+              {(formdata.text || image) && (
+                <button
+                  type="button"
+                  onClick={handelCancel}
+                  style={{
+                    position: 'absolute',
+                    right: '10px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    border: 'none',
+                    background: 'transparent',
+                    fontSize: '16px',
+
+                    cursor: 'pointer'
+                  }}
+                >
+                  ❌
+                </button>
+              )}
             </div>
 
-           
+
+
+
+            <div style={{ height: "40px", width: "40px", cursor: "pointer", borderRadius: "50%", backgroundColor: "#ffffff" }} className="d-flex align-items-center justify-content-center shadow-sm">
+              <label htmlFor="imge" className="m-0">
+                <CiImageOn size={20} />
+              </label>
+              <input id="imge" name="imge" className="d-none" type="file" accept="image/*" onChange={(e) => handleImageChange(e)} />
+            </div>
+
+            <button
+              onClick={() => handleSendMessage()}
+              disabled={!user._id}
+              className="btn btn-sm btn-outline-success d-flex align-items-center justify-content-center "
+            >
+              send
+            </button>
           </div>
         </div>
       </div>

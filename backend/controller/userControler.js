@@ -8,18 +8,24 @@ const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
 // ✅ Register User
 exports.registerUser = async (req, res) => {
     try {
-        const {firstname, lastname, email, password, role = 'user', active = '0' } = req.body;
+        const { firstname, lastname, email, password, role = 'user', active = '0' } = req.body;
 
-        if (!firstname || !lastname || !email || !password ) {
+        
+        const image = req.file?.filename;
+
+    
+        if (!firstname || !lastname || !email || !password || !image) {
             return res.status(400).json({ message: 'All fields are required!', success: false });
         }
 
+        
         const existUser = await User.findOne({ email });
         if (existUser) {
             return res.status(409).json({ message: 'User already exists!', success: false });
         }
 
-        const newUser = new User({firstname, lastname, email, password, role, active });
+        
+        const newUser = new User({ firstname, lastname, email, password, role, active, image });
         await newUser.save();
 
         return res.status(201).json({
@@ -30,7 +36,6 @@ exports.registerUser = async (req, res) => {
                 firstname: newUser.firstname,
                 lastname: newUser.lastname,
                 email: newUser.email
-                
             }
         });
     } catch (error) {
@@ -38,6 +43,7 @@ exports.registerUser = async (req, res) => {
         return res.status(500).json({ message: 'Internal server error', success: false });
     }
 };
+
 
 // ✅ Login User
 exports.loginUser = async (req, res) => {
@@ -73,6 +79,7 @@ exports.loginUser = async (req, res) => {
                 email: user.email,
                 role: user.role,
                 active: user.active,
+                image:user.image,
                 token
             }
         });

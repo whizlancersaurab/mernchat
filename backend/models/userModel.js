@@ -32,6 +32,10 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: '0',
   },
+  image:{
+    type:String,
+    required:true
+  }
 });
 
 // auto increment plugins applied to userId

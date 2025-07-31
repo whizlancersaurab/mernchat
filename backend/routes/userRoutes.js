@@ -1,10 +1,11 @@
 const express = require('express')
 const userController =require('../controller/userControler');
 const verifyToken = require('../middleware/verifyToken');
+const upload = require('../multer/uploadFile')
 
 const router = express.Router();
 
-router.post('/register' , userController.registerUser)
+router.post('/register' ,upload.single('image') , userController.registerUser)
 router.post('/login' , userController.loginUser)
 router.get('/allusers' , userController.allUser)
 router.get('/user/:id' , userController.getUserById)

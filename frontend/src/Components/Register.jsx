@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import axios from 'axios'
+import axios from 'axios';
+import chatImg from '../assets/user.png';
 
 const Register = () => {
     const [formData, setFormData] = useState({
@@ -14,8 +15,10 @@ const Register = () => {
         status: ''
     });
 
+    const [image, setImage] = useState(null);
     const [errors, setErrors] = useState({});
-    const navigate = useNavigate()
+    const navigate = useNavigate();
+
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
@@ -25,9 +28,7 @@ const Register = () => {
         const newErrors = {};
 
         if (!formData.firstname.trim()) newErrors.firstname = "Firstname is required";
-        else if (formData.firstname.length < 3) newErrors.firstname = "Firstnaem must be at least 3 charcters"
-
-
+        else if (formData.firstname.length < 3) newErrors.firstname = "Firstname must be at least 3 characters";
 
         if (!formData.lastname.trim()) newErrors.lastname = "Lastname is required";
 
@@ -35,26 +36,34 @@ const Register = () => {
         else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = "Invalid email format";
 
         if (!formData.password) newErrors.password = "Password is required";
-        else if (formData.password.length < 6) newErrors.password = "Minimum 6 characters";
+        else if (formData.password.length < 6) newErrors.password = "Minimum 6 characters required";
 
         if (!formData.role) newErrors.role = "Please select a role";
         if (!formData.status) newErrors.status = "Please select status";
 
-        setErrors(newErrors)
-        return Object.keys(newErrors).length == 0
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!validate()) {
-            return
-        }
+        if (!validate()) return;
 
         try {
+            const form = new FormData();
+            for (let key in formData) {
+                form.append(key, formData[key]);
+            }
+            if (image) {
+                form.append('image', image);
+            }
 
-            const res = await axios.post('http://localhost:8080/api/auth/register', formData)
+            const res = await axios.post('http://localhost:8080/api/auth/register', form, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+
             if (res.data.success) {
-                toast.success(res.data.message)
+                toast.success(res.data.message);
                 setFormData({
                     firstname: '',
                     lastname: '',
@@ -63,24 +72,19 @@ const Register = () => {
                     role: '',
                     status: ''
                 });
-
-                navigate('/login')
-
+                setImage(null);
+                navigate('/login');
             }
-
         } catch (error) {
-            const err = error?.response?.data?.message || 'Something went wrong while register a user !'
-            toast.error(err)
-
+            const err = error?.response?.data?.message || 'Something went wrong during registration!';
+            toast.error(err);
         }
-
-
     };
 
     return (
         <div className="container-fluid min-vh-100 d-flex align-items-center justify-content-center bg-light">
             <form
-                className="bg-white shadow p-5 rounded-4 col-12 col-sm-6  "
+                className="bg-white shadow p-5 rounded-4 col-12 col-sm-6"
                 onSubmit={handleSubmit}
                 noValidate
             >
@@ -143,7 +147,6 @@ const Register = () => {
                             onChange={handleChange}
                             className={`form-select ${errors.role && 'is-invalid'}`}
                         >
-
                             <option value="">Select Role</option>
                             <option value="user">User</option>
                             <option value="admin">Admin</option>
@@ -159,7 +162,6 @@ const Register = () => {
                             onChange={handleChange}
                             className={`form-select ${errors.status && 'is-invalid'}`}
                         >
-
                             <option value="">Select Status</option>
                             <option value="0">Active</option>
                             <option value="1">De-Active</option>
@@ -168,9 +170,23 @@ const Register = () => {
                     </div>
                 </div>
 
-                <div className="text-center ">
-                    <button className="btn btn-sm btn-outline-primary px-5">Register</button>
-                    <Link className='nav-link' to={'/login'}>Already have an account ?</Link>
+                <div className='mb-3 text-center'>
+                    <label htmlFor="img" className="rounded-circle border d-flex align-items-center justify-content-center mx-auto" style={{ height: '90px', width: '90px', overflow: 'hidden' }}>
+                        <img src={image ? URL.createObjectURL(image) : chatImg} alt="Preview" style={{ height: '90px', width: '90px', objectFit: 'cover' }} />
+                    </label>
+                    <input
+                        className='d-none'
+                        id='img'
+                        name='image'
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => setImage(e.target.files[0])}
+                    />
+                </div>
+
+                <div className="text-center">
+                    <button className="btn btn-sm btn-outline-primary px-5" type="submit">Register</button>
+                    <Link className='nav-link mt-2' to={'/login'}>Already have an account?</Link>
                 </div>
             </form>
         </div>

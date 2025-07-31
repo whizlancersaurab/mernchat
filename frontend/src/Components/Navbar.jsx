@@ -35,13 +35,16 @@ const Navbar = () => {
         
       }
   }
+  console.log(user)
 
   return (
     <nav className="navbar navbar-expand-lg bg-secondary-subtle">
       <div className="container-fluid">
-        <div className="navbar-brand">
-          <img src={chatboat} width={65} style={{ mixBlendMode: 'darken' }} alt="Chat Logo" />
-        </div>
+        {
+          user&&(<div className="navbar-brand">
+          <img src={`http://localhost:8080/api/chat/uploads/${user.image}`} width={50} height={50} style={{ mixBlendMode: 'darken' , borderRadius:'100%' }} alt="Chat Logo" />
+        </div>)
+        }
 
         <button
           className="navbar-toggler"
@@ -56,16 +59,17 @@ const Navbar = () => {
         </button>
 
         <div className="collapse navbar-collapse" id="navbarSupportedContent">
+
           <ul className="navbar-nav me-auto mb-2 mb-lg-0">
             {
-              auth&&(<li className="nav-item">
-              <NavLink
-                to="/"
-                className={({ isActive }) => `nav-link fw-semibold ${isActive ? "text-danger" : ""}`}
-              >
-                ChatBoat
-              </NavLink>
-            </li>)
+              auth&&( <li className="nav-item">
+                    <button
+
+                      className="btn btn-sm btn-outline-success text-capitalize"
+                    >
+                      {`${user.firstname} ${user.lastname}`}
+                    </button>
+                  </li>)
             }
 
           </ul>
@@ -87,14 +91,7 @@ const Navbar = () => {
                 </>
               ) : (
                 <>
-                  <li className="nav-item">
-                    <button
-
-                      className="btn btn-sm text-bg-success text-capitalize"
-                    >
-                      {user.firstname}
-                    </button>
-                  </li>
+                 
                   <li className="nav-item">
                     <button
                        onClick={handleLogout}
