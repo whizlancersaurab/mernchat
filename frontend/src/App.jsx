@@ -9,27 +9,32 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'
 import { ToastContainer, Zoom } from 'react-toastify'
 import Login from './Components/Login'
 import { AuthProvider } from './context/AuthContext'
+import AuthComponent from './Components/AuthComponent'
 
 
 
 const App = () => {
-
-  const { auth } = useContext(AuthProvider)
-
-
+  const {theme} = useContext(AuthProvider)
   return (
-    <div>
+    <div
+  data-bs-theme={theme}
+  style={{
+    backgroundColor: theme === 'dark' ? '#a09c9cff' : '#e1e4e7ff',  // dark gray vs light gray
+   
+  }}
+>
       <Router>
         <Navbar />
         <Routes>
-          {
-            auth && (
-              <Route path='/' element={<Users />} />
-            )
-          }
 
-          <Route path='/register' element={<Register />} />
+
+          <Route element={<AuthComponent />}>
+            <Route path='/' element={<Users />} />
+          </Route>
+
+
           <Route path='/login' element={<Login />} />
+          <Route path='/register' element={<Register />} />
 
         </Routes>
       </Router>

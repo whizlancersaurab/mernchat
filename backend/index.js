@@ -23,9 +23,7 @@ const PORT = process.env.PORT || 5000
 
 
 
-app.get('/' , (req,res)=>{
-    res.status(200).json({message:'Hey this is SAURABH AGRAHARI' , success:true})
-})
+
 
 //user routes
 app.use('/api/auth' , require('./routes/userRoutes'))

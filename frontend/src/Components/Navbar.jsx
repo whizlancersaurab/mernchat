@@ -4,10 +4,14 @@ import { AuthProvider } from '../context/AuthContext';
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { toast } from 'react-toastify';
+import { MdDarkMode } from "react-icons/md";
+import { MdLightMode } from "react-icons/md";
+import { GiHamburgerMenu } from "react-icons/gi";
 
 const Navbar = () => {
 
-  const { auth, setAuth ,user,setUser} = useContext(AuthProvider)
+  const { auth, setAuth ,user,setUser ,toggleTheme ,theme} = useContext(AuthProvider)
+  console.log(theme)
 
 // console.log(auth,user)
   const navigate = useNavigate()
@@ -35,10 +39,9 @@ const Navbar = () => {
         
       }
   }
-  console.log(user)
-
+ 
   return (
-    <nav className="navbar navbar-expand-lg bg-secondary-subtle">
+    <nav style={{backgroundColor: '#f8f9fa'}} className="navbar navbar-expand-lg bg-light  border-bottom border-secondary">
       <div className="container-fluid">
         {
           user&&(<div className="navbar-brand">
@@ -47,7 +50,7 @@ const Navbar = () => {
         }
 
         <button
-          className="navbar-toggler"
+          className="navbar-toggler text-dark"
           type="button"
           data-bs-toggle="collapse"
           data-bs-target="#navbarSupportedContent"
@@ -55,7 +58,7 @@ const Navbar = () => {
           aria-expanded="false"
           aria-label="Toggle navigation"
         >
-          <span className="navbar-toggler-icon"></span>
+          <span className=""><GiHamburgerMenu className='text-dark' size={25}/></span>
         </button>
 
         <div className="collapse navbar-collapse" id="navbarSupportedContent">
@@ -101,8 +104,10 @@ const Navbar = () => {
                     </button>
                   </li>
                 </>
+                
 
               )}
+              <li className={theme=='dar'?'text-white':'text-dark'} onClick={()=>toggleTheme()}>{theme=='dark'?<MdLightMode size={25} />:<MdDarkMode size={25} />}</li>
             </ul>
           }
 

@@ -7,6 +7,7 @@ import axios from 'axios';
 import { format, isToday, isYesterday } from 'date-fns';
 import Chat from './Chat';
 import UserList from './UserList';
+import { IoSend } from "react-icons/io5";
 
 const Users = () => {
   const [data, setData] = useState([]);
@@ -158,11 +159,11 @@ const Users = () => {
   }
 
   return (
-    <div className="container">
-      <div className="row vh-100">
+    <div className="container border-start border-end border-secondary rounded-1 ">
+      <div  className="row vh-100 rounded-1">
         <UserList {...{ data, handleUser }} />
-        <div style={{ backgroundColor: '#f3f0f0ff' }} className="col-12 col-sm-8 p-3">
-          <div className="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3" style={{ height: '55px' }}>
+        <div  className="col-12 col-sm-8 p-3">
+          <div className="d-flex justify-content-between align-items-center border-secondary rounded border-bottom pb-2 mb-3" style={{ height: '55px' }}>
             <div className="d-flex align-items-center">
               <img
                 src={user ? `http://localhost:8080/api/chat/uploads/${user.image}` : chatImg}
@@ -174,7 +175,7 @@ const Users = () => {
 
               <div>
                 <div className="fw-bold">{user?.firstname || "Select a user"}</div>
-                <div className="text-muted small">{user?._id ? "online" : "offline"}</div>
+                <div className=" small">{user?._id ? "online" : "offline"}</div>
               </div>
             </div>
             <div className="d-flex gap-2">
@@ -183,8 +184,10 @@ const Users = () => {
             </div>
           </div>
 
+          
+
           <Chat {...{ messageData, chatAreaRef, formatMessageTime, storageData, previewUrl, handleDelete }} />
-          <div style={{ height: "40px", width: "40px", borderRadius: "50%", backgroundColor: "#ffffff" }} className="d-flex  align-items-end shadow-sm">
+          <div style={{ height: "40px", width: "40px", borderRadius: "50%", backgroundColor: "#e7e2e2ff" }} className="d-flex  align-items-end justify-content-end shadow-sm">
             <div>
               <AudioRecorder
                 onRecordingComplete={(blob) => handleSendMessage(blob)}
@@ -195,13 +198,13 @@ const Users = () => {
             </div>
           </div>
 
-          <div className="mt-1 d-flex align-items-center p-2" style={{ backgroundColor: "#f0f2f5", borderRadius: "30px", boxShadow: "0 1px 3px rgba(0,0,0,0.1)", gap: "10px" }}>
+          <div className="mt-1 d-flex align-items-center p-2" style={{ backgroundColor: "#f0f2f5", borderRadius: "30px", boxShadow: "0 1px 3px rgba(5, 4, 4, 0.1)", gap: "10px" }}>
             <div className="flex-grow-1 position-relative">
               <input
                 onChange={(e) => setFormdata((prev) => ({ ...prev, text: e.target.value }))}
                 value={formdata.text}
                 type="text"
-                className="form-control border-0 shadow-none px-3 py-2 pe-5"
+                className="form-control text-dark border-0 shadow-none px-3 py-2 pe-5"
                 placeholder="Type a message"
                 style={{ borderRadius: "20px", backgroundColor: "#ffffff" }}
               />
@@ -229,7 +232,7 @@ const Users = () => {
 
 
 
-            <div style={{ height: "40px", width: "40px", cursor: "pointer", borderRadius: "50%", backgroundColor: "#ffffff" }} className="d-flex align-items-center justify-content-center shadow-sm">
+            <div style={{ height: "40px", width: "40px", cursor: "pointer", borderRadius: "50%" }} className="d-flex align-items-center justify-content-center shadow-sm">
               <label htmlFor="imge" className="m-0">
                 <CiImageOn size={20} />
               </label>
@@ -239,9 +242,9 @@ const Users = () => {
             <button
               onClick={() => handleSendMessage()}
               disabled={!user._id}
-              className="btn btn-sm btn-outline-success d-flex align-items-center justify-content-center "
+              className="btn d-flex align-items-center text-dark justify-content-center "
             >
-              send
+              <IoSend className='text-success' size={22}/>
             </button>
           </div>
         </div>
