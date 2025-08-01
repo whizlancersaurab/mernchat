@@ -46,7 +46,7 @@ const Users = () => {
         headers: { Authorization: `Bearer ${storageData.token}` },
       });
       if (chatRes.data.success) {
-        console.log(chatRes.data.allMessage)
+        // console.log(chatRes.data.allMessage)
         setMessageData(chatRes.data.allMessage);
         setTimeout(scrollToBottom, 1);
       }

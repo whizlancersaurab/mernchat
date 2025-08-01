@@ -11,7 +11,7 @@ import { GiHamburgerMenu } from "react-icons/gi";
 const Navbar = () => {
 
   const { auth, setAuth ,user,setUser ,toggleTheme ,theme} = useContext(AuthProvider)
-  console.log(theme)
+  // console.log(theme)
 
 // console.log(auth,user)
   const navigate = useNavigate()
