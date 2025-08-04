@@ -57,7 +57,7 @@ apiForm.interceptors.request.use(config => {
 export const registerUser = (data) => apiPublic.post('/auth/register', data)
 export const loginUser = (data) => apiPublic2.post('/auth/login', data)
 export const getAllUsers = () => apiPublic2.get('/auth/allusers')
-export const getUser = (id) => apiPublic2.get(`auth/user/${id}`)
+export const getUser = (id) => apiPublic2.get(`/auth/user/${id}`)
 export const logoutUser = () => apiJSON.get('/auth/logout')
 
 
