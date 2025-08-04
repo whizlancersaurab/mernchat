@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { AuthProvider } from '../context/AuthContext';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import {loginUser} from '../services/api'
 
 const Login = () => {
     const [formData, setFormData] = useState({
@@ -42,7 +43,9 @@ const Login = () => {
 
         try {
 
-            const res = await axios.post('http://localhost:8080/api/auth/login', formData)
+            // const res = await axios.post('http://localhost:8080/api/auth/login', formData)
+
+            const res = await loginUser(formData)
             // console.log(res)
             if (res.data.success) {
                 localStorage.setItem('user', JSON.stringify(res.data.user))

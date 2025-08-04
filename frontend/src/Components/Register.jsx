@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import axios from 'axios';
 import chatImg from '../assets/user.png';
+import {registerUser} from '../services/api'
 
 const Register = () => {
     const [formData, setFormData] = useState({
@@ -58,9 +59,11 @@ const Register = () => {
                 form.append('image', image);
             }
 
-            const res = await axios.post('http://localhost:8080/api/auth/register', form, {
-                headers: { 'Content-Type': 'multipart/form-data' }
-            });
+            // const res = await axios.post('http://localhost:8080/api/auth/register', form, {
+            //     headers: { 'Content-Type': 'multipart/form-data' }
+            // });
+
+            const res = await registerUser(form)
 
             if (res.data.success) {
                 toast.success(res.data.message);

@@ -7,23 +7,22 @@ import { toast } from 'react-toastify';
 import { MdDarkMode } from "react-icons/md";
 import { MdLightMode } from "react-icons/md";
 import { GiHamburgerMenu } from "react-icons/gi";
+import { fullUrl, logoutUser } from '../services/api';
 
 const Navbar = () => {
 
   const { auth, setAuth ,user,setUser ,toggleTheme ,theme} = useContext(AuthProvider)
-  // console.log(theme)
-
-// console.log(auth,user)
   const navigate = useNavigate()
-
   const handleLogout = async()=>{
       try {
 
-        const res = await axios.get('http://localhost:8080/api/auth/logout' ,{
-          headers:{
-            Authorization:`Bearer ${user.token}`
-          }
-        })
+        // const res = await axios.get('http://localhost:8080/api/auth/logout' ,{
+        //   headers:{
+        //     Authorization:`Bearer ${user.token}`
+        //   }
+        // })
+
+        const res = await logoutUser();
 
         if(res.data.success){
           setAuth(false)
@@ -45,7 +44,7 @@ const Navbar = () => {
       <div className="container-fluid">
         {
           user&&(<div className="navbar-brand">
-          <img src={`http://localhost:8080/api/chat/uploads/${user.image}`} width={50} height={50} style={{ mixBlendMode: 'darken' , borderRadius:'100%' }} alt="Chat Logo" />
+          <img src={`${fullUrl}/${user.image}`} width={50} height={50} style={{ mixBlendMode: 'darken' , borderRadius:'100%' }} alt="Chat Logo" />
         </div>)
         }
 

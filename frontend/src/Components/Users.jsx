@@ -3,11 +3,11 @@ import { AudioRecorder } from 'react-audio-voice-recorder';
 import chatImg from '../assets/chat.jpg';
 import { MdAddCall } from "react-icons/md";
 import { CiVideoOn, CiImageOn } from "react-icons/ci";
-import axios from 'axios';
 import { format, isToday, isYesterday } from 'date-fns';
 import Chat from './Chat';
 import UserList from './UserList';
 import { IoSend } from "react-icons/io5";
+import { deleteMessage, getAllUsers, getmessage, getUser, sendMessage ,fullUrl } from '../services/api';
 
 const Users = () => {
   const [data, setData] = useState([]);
@@ -30,7 +30,7 @@ const Users = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await axios.get('http://localhost:8080/api/auth/allusers');
+        const res = await getAllUsers();
         setData(res.data.users);
       } catch (error) {
         console.error("Failed to fetch users:", error);
@@ -42,9 +42,11 @@ const Users = () => {
 
   const getMessage = async (id) => {
     try {
-      const chatRes = await axios.get(`http://localhost:8080/api/chat/getmessage/${id}`, {
-        headers: { Authorization: `Bearer ${storageData.token}` },
-      });
+      // const chatRes = await axios.get(`http://localhost:8080/api/chat/getmessage/${id}`, {
+      //   headers: { Authorization: `Bearer ${storageData.token}` },
+      // });
+
+      const chatRes = await getmessage(id)
       if (chatRes.data.success) {
         // console.log(chatRes.data.allMessage)
         setMessageData(chatRes.data.allMessage);
@@ -58,7 +60,10 @@ const Users = () => {
   const handleUser = async (id) => {
     setCurrentUserId(id);
     try {
-      const res = await axios.get(`http://localhost:8080/api/auth/user/${id}`);
+      // const res = await axios.get(`http://localhost:8080/api/auth/user/${id}`);
+     
+      const res = await getUser(id)
+
       if (res.data.success) {
         getMessage(id);
         setUser(res.data.user);
@@ -95,12 +100,14 @@ const Users = () => {
     // }
 
     try {
-      const res = await axios.post(`http://localhost:8080/api/chat/sendmessage`, sendData, {
-        headers: {
-          Authorization: `Bearer ${storageData.token}`,
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      // const res = await axios.post(`http://localhost:8080/api/chat/sendmessage`, sendData, {
+      //   headers: {
+      //     Authorization: `Bearer ${storageData.token}`,
+      //     "Content-Type": "multipart/form-data",
+      //   },
+      // });
+
+      const res = await sendMessage(sendData)
 
       if (res.data.success) {
         setFormdata((prev) => ({ ...prev, text: '' }));
@@ -135,27 +142,37 @@ const Users = () => {
   };
 
   const handleDelete = async (id) => {
-    // console.log(id)
+    
     try {
       if (!id) {
         return;
       }
 
-      const res = await axios.delete(`http://localhost:8080/api/chat/deletemessage/${id}`, {
-        headers: {
-          Authorization: `Bearer ${storageData.token}`,
-        },
-      });
+      // const res = await axios.delete(`http://localhost:8080/api/chat/deletemessage/${id}`, {
+      //   headers: {
+      //     Authorization: `Bearer ${storageData.token}`,
+      //   },
+      // });
+
+      const res = await deleteMessage(id)
 
       if (res.data.success) {
         setMessageData((prev) => prev.filter((message) => message._id != id))
-        // getMessage(user._id)
+       
       }
 
     } catch (error) {
       console.error("Error sending message:", error);
 
     }
+  }
+
+  const handleKeyDown = (e)=>{
+    if(e.key==='Enter'){
+      e.preventDefault()
+      handleSendMessage()
+    }
+
   }
 
   return (
@@ -166,7 +183,7 @@ const Users = () => {
           <div className="d-flex justify-content-between align-items-center border-secondary rounded border-bottom pb-2 mb-3" style={{ height: '55px' }}>
             <div className="d-flex align-items-center">
               <img
-                src={user ? `http://localhost:8080/api/chat/uploads/${user.image}` : chatImg}
+                src={user ? `${fullUrl}/${user.image}` : chatImg}
                 alt="user"
                 className="rounded-circle me-2"
                 width={50}
@@ -187,7 +204,9 @@ const Users = () => {
           
 
           <Chat {...{ messageData, chatAreaRef, formatMessageTime, storageData, previewUrl, handleDelete }} />
-          <div style={{ height: "40px", width: "40px", borderRadius: "50%", backgroundColor: "#e7e2e2ff" }} className="d-flex  align-items-end justify-content-end shadow-sm">
+
+          
+          <div style={{ height: "40px", width: "40px", borderRadius: "50%", backgroundColor: "#e7e2e2ff" }} className="">
             <div>
               <AudioRecorder
                 onRecordingComplete={(blob) => handleSendMessage(blob)}
@@ -201,6 +220,7 @@ const Users = () => {
           <div className="mt-1 d-flex align-items-center p-2" style={{ backgroundColor: "#f0f2f5", borderRadius: "30px", boxShadow: "0 1px 3px rgba(5, 4, 4, 0.1)", gap: "10px" }}>
             <div className="flex-grow-1 position-relative">
               <input
+                onKeyDown={handleKeyDown}
                 onChange={(e) => setFormdata((prev) => ({ ...prev, text: e.target.value }))}
                 value={formdata.text}
                 type="text"
@@ -236,7 +256,7 @@ const Users = () => {
               <label htmlFor="imge" className="m-0">
                 <CiImageOn size={20} />
               </label>
-              <input id="imge" name="imge" className="d-none" type="file" accept="image/*" onChange={(e) => handleImageChange(e)} />
+              <input  id="imge" name="imge" className="d-none" type="file" accept="image/*" onChange={(e) => handleImageChange(e)} />
             </div>
 
             <button
@@ -246,6 +266,7 @@ const Users = () => {
             >
               <IoSend className='text-success' size={22}/>
             </button>
+
           </div>
         </div>
       </div>

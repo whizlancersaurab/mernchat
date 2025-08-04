@@ -1,6 +1,10 @@
 const User = require("../models/userModel");
 const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
+const path = require('path')
+const fs = require('fs')
+
+const Chat = require('../models/chatModel')
 
 // Helper function to validate ObjectId
 const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
@@ -189,32 +193,51 @@ exports.logoutUser = async (req, res) => {
 };
 
 
-// delete a user
+exports.deleteUser = async (req, res) => {
 
-exports.deleteUser = async(req,res)=>{
-    try {
+  try {
+    const { id } = req.params;
 
-        const {id} = req.params;
-
-        if(!isValidObjectId(id)){
-           return res.status(400).json({ message: 'Invalid user ID.', success: false });
-        }
-        
-       const deletedUser = await User.findByIdAndUpdate(id);
-
-        
-        if(!deletedUser){
-            return res.status(404).json({ message: 'User not found or Deleted Already !.', success: false });
-
-        }
-         return res.status(200).json({
-            message: 'User deleted successfully.',
-            success: true
-        });
-
-    } catch (error) {
-          console.error("Delete Error:", error);
-        return res.status(500).json({ message: 'Internal server error', success: false });
-        
+   
+    if (!isValidObjectId(id)) {
+      return res.status(400).json({ message: 'Invalid user ID.', success: false });
     }
-}
+
+   
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found.', success: false });
+    }
+
+   
+    if (user.image) {
+      const fullPath = path.join(__dirname, '..', 'uploads', user.image);
+      if (fs.existsSync(fullPath)) {
+        fs.unlinkSync(fullPath); 
+      }
+    }
+
+   
+    await Chat.deleteMany({
+      $or: [
+        { senderId: id },
+        { recieverId: id }
+      ]
+    });
+
+   
+    await User.findByIdAndDelete(id);
+
+   
+    return res.status(200).json({
+      message: 'User and related messages deleted successfully.',
+      success: true
+    });
+
+  } catch (error) {
+    console.error("Delete Error:", error);
+    return res.status(500).json({ message: 'Internal server error.', success: false });
+  }
+};
+
+

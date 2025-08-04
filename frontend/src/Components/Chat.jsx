@@ -1,7 +1,10 @@
 import React from 'react'
 import { MdDeleteForever } from "react-icons/md";
+import { fullUrl } from '../services/api';
 
 const Chat = ({ messageData, formatMessageTime, chatAreaRef, storageData, previewUrl ,handleDelete }) => {
+  // console.log(messageData)
+  // console.log(storageData)
   return (
     <div ref={chatAreaRef} className="chat-area  no-scrollbar d-flex flex-column gap-2" style={{ height: '70vh', overflowY: 'auto' }}>
       {messageData.length === 0 && (
@@ -17,17 +20,21 @@ const Chat = ({ messageData, formatMessageTime, chatAreaRef, storageData, previe
               {message.text && (<div className={`card p-2 ${!isSender ? 'bg-primary-subtl text-dar' : 'bg-success-subtl text-dar'}`} style={{ maxWidth: '70%' }}>
                 {message.text}
               </div>)}
-              {message.image && (<img src={`http://localhost:8080/api/chat/uploads/${message.image}`} style={{ maxWidth: '30%' }} />
+              {message.image && (<img src={`${fullUrl}/${message.image}`} style={{ maxWidth: '30%' }} />
 
               )}
               {message.audio && (
                 <div style={{ maxWidth: '70%' }}>
-                  <audio controls src={`http://localhost:8080/api/chat/uploads/${message.audio}`} />
+                  <audio controls src={`${fullUrl}/${message.audio}`} />
                 </div>
               )}
 
-             <div> <small className="text-mute mt-1">{formattedTime}</small>  
-              <small onClick={()=>handleDelete(message._id)} className="text-danger">< MdDeleteForever size={15}/></small> </div> 
+             <div> 
+              <small className="text-mute mt-1">{formattedTime}</small>  
+
+             {storageData.id==message.senderId._id&&( <small onClick={()=>handleDelete(message._id)} className="text-danger">< MdDeleteForever size={15}/></small>)}
+              
+               </div> 
             </div>
           );
         })

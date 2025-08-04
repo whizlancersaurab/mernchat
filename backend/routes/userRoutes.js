@@ -11,6 +11,6 @@ router.get('/allusers' , userController.allUser)
 router.get('/user/:id' , userController.getUserById)
 router.get('/logout' ,verifyToken, userController.logoutUser)
 router.get('/currentuser' , verifyToken , userController.currentUser)
-router.delete('/deleteuser/:id' ,verifyToken, userController.deleteUser)
+router.delete('/deleteuser/:id' , userController.deleteUser)
 
 module.exports = router

@@ -87,6 +87,7 @@ exports.getMessage = async (req, res) => {
 exports.deleteMessage = async (req, res) => {
   try {
     const { id } = req.params;
+    const CurrentsenderId = req.user.id;
 
 
     if (!isValidObjectId(id)) {
@@ -97,6 +98,11 @@ exports.deleteMessage = async (req, res) => {
 
     if (!message) {
       return res.status(404).json({ message: 'Message not found', success: false });
+    }
+
+    if(CurrentsenderId!=message.senderId){
+      return res.status(404).json({message:'Not a valid user !' , success:false})
+
     }
 
     const deleteFileIfExists = (filePath) => {
